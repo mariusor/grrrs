@@ -1,7 +1,7 @@
 CC ?= clang
 COMPILE_FLAGS = -std=c11 -Wpedantic -Wall -Wextra -Werror -DSNOW_ENABLED -DDEBUG
 LINK_FLAGS = -g -O1
-INCLUDES = -Isnow -I../src
+INCLUDES = -Isnow -I..
 
 SOURCES = basic.c
 
