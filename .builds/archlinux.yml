@@ -19,8 +19,8 @@ tasks:
       CC=clang make -C tests check_memory
       CC=gcc make -C tests check_leak
       CC=gcc make -C tests check_undefined
-  - push: |
-      cd grrrs
-      yes | ssh -t git@github.com
-      git remote add notorigin git@github.com:mariusor/grrrs.git
-      git push notorigin HEAD:master
+#  - push: |
+#      cd grrrs
+#      yes | ssh -t git@github.com
+#      git remote add notorigin git@github.com:mariusor/grrrs.git
+#      git push notorigin HEAD:master
