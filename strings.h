@@ -8,7 +8,7 @@
 #include <assert.h>
 #endif
 
-#include <stdint.h>
+#include <inttypes.h>
 
 #ifndef grrrs_malloc
 #include <stdlib.h>
@@ -164,7 +164,7 @@ internal void *_grrrs_resize(void *s, uint_fast32_t new_cap)
     assert(_OKP(gs));
 #endif
     if (new_cap < gs->len) {
-        GRRRS_ERR("new cap should be larger than existing length %lu\n", gs->len);
+        GRRRS_ERR("new cap should be larger than existing length " PRIud16" \n", gs->len);
     }
     // TODO(marius): cover the case where new_cap is smaller than gs->len
     // and maybe when it's smaller than gs->cap
