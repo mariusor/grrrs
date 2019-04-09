@@ -20,6 +20,24 @@ describe(basic) {
         _grrrs_free(t);
     }
 
+    it("Check pointer addresses") {
+        char *t = grrrs_new(0);
+
+        assert(grrrs_len(t) == 0);
+        assert(grrrs_cap(t) == 0);
+        struct grrr_string *gs = _grrrs_ptr(t);
+
+        assert((void*)&gs->data == (void*)t);
+        assert((void*)&gs->cap == (void*)(t - sizeof(gs->cap)));
+        assert((void*)&gs->len == (void*)(t - sizeof(gs->cap) - sizeof(gs->len)));
+        assert((void*)gs == (void*)(t - sizeof(gs->cap) - sizeof(gs->len)));
+
+        assert(gs->len == 0);
+        assert(gs->cap == 0);
+
+        _grrrs_free(t);
+    }
+
     it("From C string") {
         char *t = grrrs_new("ana are mere\n");
         assert(grrrs_len(t) == 13);
