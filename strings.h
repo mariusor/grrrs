@@ -54,7 +54,7 @@ struct grrr_string {
 
 internal struct grrr_string *_grrrs_ptr(char *s)
 {
-    return (struct grrr_string*)(s - 2*sizeof(int_fast16_t));
+    return (struct grrr_string*)(s - 2*sizeof(size_t));
 }
 
 void _grrrs_free(char *s)
