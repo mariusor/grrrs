@@ -3,6 +3,7 @@ packages:
   - base-devel
   - clang
   - gcc
+  - valgrind
 sources:
   - https://git.sr.ht/~mariusor/grrrs
 environment:
