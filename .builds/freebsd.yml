@@ -7,9 +7,11 @@ sources:
   - https://git.sr.ht/~mariusor/grrrs
 environment:
   SNOWFLAGS: --no-maybes
+  CFALGS: -I/usr/local/include
+  LDFLAGS: -L/usr/local/lib
 tasks:
   - build: |
       cd grrrs
       gmake tests
-      CC=gcc gmake -C tests check_leak
-      CC=gcc gmake -C tests check_undefined
+      gmake -C tests check_leak
+      gmake -C tests check_undefined

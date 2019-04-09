@@ -20,15 +20,15 @@ export LDFLAGS := $(LDFLAGS) $(LINK_FLAGS)
 .PHONY: check_leak check check_memory check_undefined run test clean
 
 check_leak: basic
-check_leak: export CFLAGS := $(CFLAGS) $(COMPILE_FLAGS) $(DCOMPILE_FLAGS) -fsanitize=address
+check_leak: export CFLAGS := $(CFLAGS) $(COMPILE_FLAGS) -fsanitize=address
 check_leak: run clean
 
 check_leak: basic
-check_memory: export CFLAGS := $(CFLAGS) $(COMPILE_FLAGS) $(DCOMPILE_FLAGS) -fsanitize=memory
+check_memory: export CFLAGS := $(CFLAGS) $(COMPILE_FLAGS) -fsanitize=memory
 check_memory: run clean
 
 check_leak: basic
-check_undefined: export CFLAGS := $(CFLAGS) $(COMPILE_FLAGS) $(DCOMPILE_FLAGS) -fsanitize=undefined
+check_undefined: export CFLAGS := $(CFLAGS) $(COMPILE_FLAGS) -fsanitize=undefined
 check_undefined: run clean
 
 run: basic
