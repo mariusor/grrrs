@@ -9,7 +9,7 @@ SNOWFLAGS ?= #--no-maybes --cr
 
 VGFLAGS ?= \
 	--quiet --leak-check=full --show-leak-kinds=all \
-	--track-origins=yes --error-exitcode=77
+	--track-origins=yes --error-exitcode=1
 
 export CFLAGS := $(CFLAGS) $(COMPILE_FLAGS)
 export LDFLAGS := $(LDFLAGS) $(LINK_FLAGS)
