@@ -13,5 +13,4 @@ tasks:
   - build: |
       cd grrrs
       gmake tests
-      gmake -C tests check_leak
       gmake -C tests check_undefined
