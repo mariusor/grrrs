@@ -45,8 +45,8 @@
 
 // TODO(marius): investigate how this aligns
 struct grrr_string {
-    uint_fast16_t len; /* currently used size of data[] */
-    uint_fast16_t cap; /* available size for data[] */
+    size_t len; /* currently used size of data[] */
+    size_t cap; /* available size for data[] */
     char data[];
 };
 
@@ -89,11 +89,11 @@ internal struct grrr_string *_grrrs_new_empty()
     return result;
 }
 
-internal uint_fast16_t __strlen(const char *s)
+internal size_t __strlen(const char *s)
 {
     if (_VOID(s)) { return -1; }
 
-    uint_fast16_t result = 0;
+    size_t result = 0;
 
     while (*s++ != '\0') { result++; }
 
@@ -120,7 +120,7 @@ internal struct grrr_string *_grrrs_new_from_cstring(const char* s)
     return result;
 }
 
-uint_fast16_t grrrs_cap(const char* s)
+size_t grrrs_cap(const char* s)
 {
 #ifdef DEBUG
     assert(_OKP(s));
@@ -135,7 +135,7 @@ uint_fast16_t grrrs_cap(const char* s)
     return gs->cap;
 }
 
-uint_fast16_t grrrs_len(const char* s)
+size_t grrrs_len(const char* s)
 {
 #ifdef DEBUG
     assert(_OKP(s));
@@ -164,12 +164,12 @@ internal void *_grrrs_resize(void *s, uint_fast32_t new_cap)
     assert(_OKP(gs));
 #endif
     if (new_cap < gs->len) {
-        GRRRS_ERR("new cap should be larger than existing length " PRIud16" \n", gs->len);
+        GRRRS_ERR("new cap should be larger than existing length %zu \n", gs->len);
     }
     // TODO(marius): cover the case where new_cap is smaller than gs->len
     // and maybe when it's smaller than gs->cap
     gs = realloc(gs, _grrr_sizeof(new_cap));
-    if ((uint_fast16_t)new_cap < gs->cap) {
+    if ((size_t)new_cap < gs->cap) {
         // ensure existing string is null terminated
         gs->data[new_cap] = '\0';
     }
