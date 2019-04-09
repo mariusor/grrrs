@@ -1,0 +1,15 @@
+image: freebsd/latest
+packages:
+  - gcc
+  - valgrind
+  - gmake
+sources:
+  - https://git.sr.ht/~mariusor/grrrs
+environment:
+  SNOWFLAGS: --no-maybes
+tasks:
+  - build: |
+      cd grrrs
+      gmake tests
+      CC=gcc gmake -C tests check_leak
+      CC=gcc gmake -C tests check_undefined
