@@ -28,7 +28,7 @@ all: release
 
 .PHONY: tests
 tests:
-	make -C tests run
+	make -C tests test
 
 release: export CFLAGS := $(CFLAGS) $(COMPILE_FLAGS) $(RCOMPILE_FLAGS)
 release: export LDFLAGS := $(LDFLAGS) $(LINK_FLAGS) $(RLINK_FLAGS)
