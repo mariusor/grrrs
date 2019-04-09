@@ -12,5 +12,4 @@ environment:
 tasks:
   - build: |
       cd grrrs
-      gmake tests
-      gmake -C tests check_undefined
+      gmake -C tests test
