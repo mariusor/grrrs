@@ -4,6 +4,8 @@ packages:
   - clang
   - gcc
   - valgrind
+secrets:
+  - a577db26-c95a-4b2a-ac71-cea3a71088ea
 sources:
   - https://git.sr.ht/~mariusor/grrrs
 environment:
@@ -17,3 +19,8 @@ tasks:
       CC=clang make -C tests check_memory
       CC=gcc make -C tests check_leak
       CC=gcc make -C tests check_undefined
+  - push: |
+      cd grrrs
+      yes | ssh -t git@github.com
+      git remote add notorigin git@github.com:mariusor/grrrs.git
+      git push notorigin HEAD:master
