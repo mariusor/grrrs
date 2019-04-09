@@ -6,7 +6,7 @@ packages:
 sources:
   - https://git.sr.ht/~mariusor/grrrs
 environment:
-    SNOWFLAGS=--no-maybes
+  SNOWFLAGS: --no-maybes
 tasks:
   - build: |
       cd grrrs
