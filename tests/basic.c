@@ -2,8 +2,9 @@
  * @author Marius Orcsik <marius@habarnam.ro>
  */
 
-#define GRRRS_OOM assert(!"Unable to allocate memory")
+#include <stdio.h>
 #define GRRRS_ERR(...) fprintf(stderr, __VA_ARGS__)
+#define GRRRS_OOM assert(!"Failed to allocate memory")
 
 #include "strings.h"
 
