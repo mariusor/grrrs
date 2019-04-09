@@ -1,0 +1,18 @@
+image: archlinux
+packages:
+  - base-devel
+  - clang
+  - gcc
+sources:
+  - https://git.sr.ht/~mariusor/grrrs
+environment:
+    SNOWFLAGS=--no-maybes
+tasks:
+  - build: |
+      cd grrrs
+      make tests
+      CC=clang make -C tests check_leak
+      CC=clang make -C tests check_undefined
+      CC=clang make -C tests check_memory
+      CC=gcc make -C tests check_leak
+      CC=gcc make -C tests check_undefined
