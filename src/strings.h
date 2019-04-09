@@ -4,38 +4,50 @@
 #ifndef GRRRS_STRINGS_H
 #define GRRRS_STRINGS_H
 
-#if DDEBUG
+#ifdef DEBUG
 #include <assert.h>
-#endif
-
-#include <stdlib.h>
-#include <stdint.h>
 #include <stdio.h>
-
-#ifndef GRRRS_MALLOC
-#define GRRRS_MALLOC(...) malloc(__VA_ARGS__)
 #endif
 
-#ifndef GRRRS_REALLOC
-#define GRRRS_REALLOC(A, ...) realloc((A), __VA_ARGS__)
+#include <stdint.h>
+
+#ifndef grrrs_malloc
+#include <stdlib.h>
+#define grrrs_malloc malloc
 #endif
 
-#ifndef GRRRS_FREE
-#define GRRRS_FREE(A) free(A)
+#ifndef grrrs_realloc
+#include <stdlib.h>
+#define grrrs_realloc realloc
+#endif
+
+#ifndef grrrs_free
+#include <stdlib.h>
+#define grrrs_free free
 #endif
 
 #ifndef GRRRS_OOM
 #define GRRRS_OOM
 #endif
 
+#ifndef GRRRS_ERR
+#define GRRRS_ERR(...)
+#endif
+
 #define internal static
 #define _VOID(A) (NULL == (A))
 #define _OKP(A) (NULL != (A))
 
+#define _grrr_sizeof(C) (sizeof(struct grrr_string) + (C * sizeof(char)) + 1)
+
+#define grrrs_new(A) (_VOID(A) ? \
+    (char *)&_grrrs_new_empty()->data : \
+    (char *)&_grrrs_new_from_cstring(A)->data)
+
 // TODO(marius): investigate how this aligns
 struct grrr_string {
-    int_fast16_t len;
-    int_fast16_t cap;
+    uint_fast16_t len; /* currently used size of data[] */
+    uint_fast16_t cap; /* available size for data[] */
     char data[];
 };
 
@@ -58,14 +70,14 @@ void _grrrs_free(char *s)
     }
 
     if (_VOID(gs->data)) {
-        GRRRS_FREE(gs->data);
+        grrrs_free(gs->data);
     }
-    GRRRS_FREE(gs);
+    grrrs_free(gs);
 }
 
-struct grrr_string *_grrrs_new_empty()
+internal struct grrr_string *_grrrs_new_empty()
 {
-    struct grrr_string *result = GRRRS_MALLOC(sizeof(struct grrr_string));
+    struct grrr_string *result = grrrs_malloc(_grrr_sizeof(0));
     if (_VOID(result)) {
         GRRRS_OOM;
         return (void*)(2*sizeof(char));
@@ -73,24 +85,26 @@ struct grrr_string *_grrrs_new_empty()
 
     result->len = 0;
     result->cap = 0;
+    result->data[0] = '\0';
 
     return result;
 }
 
-internal int __strlen(const char *s)
+internal uint_fast16_t __strlen(const char *s)
 {
     if (_VOID(s)) { return -1; }
 
-    int result = 0;
+    uint_fast16_t result = 0;
+
     while (*s++ != '\0') { result++; }
 
     return result;
 }
 
-struct grrr_string *_grrrs_new_from_cstring(const char* s)
+internal struct grrr_string *_grrrs_new_from_cstring(const char* s)
 {
     int len = __strlen(s);
-    struct grrr_string *result = GRRRS_MALLOC(sizeof(struct grrr_string) + (len * sizeof(char)) + 1);
+    struct grrr_string *result = grrrs_malloc(_grrr_sizeof(len));
     if (_VOID(result)) {
         GRRRS_OOM;
         return (void*)(2*sizeof(char));
@@ -107,40 +121,67 @@ struct grrr_string *_grrrs_new_from_cstring(const char* s)
     return result;
 }
 
-int grrrs_cap(const char* s)
+uint_fast16_t grrrs_cap(const char* s)
 {
+#ifdef DEBUG
+    assert(_OKP(s));
+#endif
     struct grrr_string *gs = _grrrs_ptr((char*)s);
-#if DDEBUG
-    assert(_OKP(gs))
+
+#ifdef DEBUG
+    assert(_OKP(gs));
     assert(__strlen(s) <= gs->cap);
+    assert(__strlen(s) == gs->len);
 #endif
     return gs->cap;
 }
 
-
-int grrrs_len(const char* s)
+uint_fast16_t grrrs_len(const char* s)
 {
+#ifdef DEBUG
+    assert(_OKP(s));
+#endif
     struct grrr_string *gs = _grrrs_ptr((char*)s);
-#if DDEBUG
-    assert(_OKP(gs))
-    assert(__strlen(s) == gs->len);
+
+#ifdef DEBUG
+    assert(_OKP(gs));
+#endif
+
+#ifdef DEBUG
+    assert(gs->data == s);
+    assert(__strlen(gs->data) == gs->len);
 #endif
     return gs->len;
 }
 
-void *_grrrs_resize(void *s, int new_cap)
+internal void *_grrrs_resize(void *s, uint_fast32_t new_cap)
 {
-    struct grrr_string *gs = _grrrs_ptr((char*)s);
-#if DDEBUG
-    assert(_OKP(gs))
+#ifdef DEBUG
+    assert(_OKP(s));
 #endif
-    gs = realloc(gs, sizeof(struct grrr_string) + (new_cap * sizeof(char)) + 1);
+    struct grrr_string *gs = _grrrs_ptr((char*)s);
+
+#ifdef DEBUG
+    assert(_OKP(gs));
+#endif
+    if (new_cap < gs->len) {
+        GRRRS_ERR("new cap should be larger than existing len %zu\n", gs->len);
+    }
+    // TODO(marius): cover the case where new_cap is smaller than gs->len
+    // and maybe when it's smaller than gs->cap
+    gs = realloc(gs, _grrr_sizeof(new_cap));
+    if ((uint_fast16_t)new_cap < gs->cap) {
+        // ensure existing string is null terminated
+        gs->data[new_cap] = '\0';
+    }
+
+    for (unsigned i = gs->cap; i <= new_cap; i++) {
+        // ensure that the new capacity is zeroed
+        gs->data[i] = '\0';
+    }
+    gs->cap = new_cap;
 
     return gs->data;
 }
-
-#define grrrs_new(A) (_VOID(A) ? \
-    (char *)&_grrrs_new_empty()->data : \
-    (char *)&_grrrs_new_from_cstring(A)->data)
 
 #endif // GRRRS_STRINGS_H
