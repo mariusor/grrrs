@@ -28,7 +28,7 @@ describe(basic) {
         _grrrs_free(t);
     }
 
-    it("Rezize string") {
+    it("Resize string") {
         char *t = grrrs_new(0);
         assert(grrrs_len(t) == 0);
         assert(grrrs_cap(t) == 0);
