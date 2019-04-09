@@ -1,0 +1,15 @@
+image: alpine/edge
+packages:
+  - gcc
+  - clang
+  - valgrind
+  - make
+sources:
+  - https://git.sr.ht/~mariusor/grrrs
+environment:
+  SNOWFLAGS: --no-maybes
+tasks:
+  - build: |
+      cd grrrs
+      CC=gcc make -C tests test
+      CC=clang make -C tests test
