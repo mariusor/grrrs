@@ -1,12 +1,12 @@
 CC ?= clang
 COMPILE_FLAGS = -std=c11 -Wpedantic -Wall -Wextra
 LINK_FLAGS =
-DCOMPILE_FLAGS = -g -DDEBUG -O1
+DCOMPILE_FLAGS = -g -DDEBUG -Og
 RLINK_FLAGS = -shared
 DLINK_FLAGS =
 
 TARGET = grrrs.so
-SOURCES = src/strings.h
+SOURCES = strings.h
 DESTDIR = /
 INSTALL_PREFIX = usr/local
 
@@ -42,5 +42,5 @@ install: $(TARGET) $(TARGET).1
 uninstall:
 	$(RM) $(DESTDIR)$(INSTALL_PREFIX)/lib/$(TARGET)
 
-$(TARGET): $(SOURCES) src/*.h
+$(TARGET): $(SOURCES)
 	$(CC) $(CFLAGS) $(INCLUDES) $(SOURCES) $(LDFLAGS) -o$(TARGET)
