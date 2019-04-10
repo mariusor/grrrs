@@ -36,6 +36,7 @@
 #define internal static
 #define _VOID(A) (NULL == (A))
 #define _OKP(A) (NULL != (A))
+#define _GRRRS_NULL_TOP_PTR (-2*sizeof(size_t))
 
 #define _grrr_sizeof(C) (sizeof(struct grrr_string) + (C * sizeof(char)) + 1)
 
@@ -54,7 +55,7 @@ struct grrr_string {
 
 internal struct grrr_string *_grrrs_ptr(char *s)
 {
-    return (struct grrr_string*)(s - 2*sizeof(size_t));
+    return (struct grrr_string*)(s - 2 * sizeof(size_t));
 }
 
 void _grrrs_free(char *s)
@@ -79,7 +80,7 @@ internal struct grrr_string *_grrrs_new_empty()
     struct grrr_string *result = grrrs_malloc(_grrr_sizeof(0));
     if (_VOID(result)) {
         GRRRS_OOM;
-        return (void*)(2*sizeof(char));
+        return (void*)_GRRRS_NULL_TOP_PTR;
     }
 
     result->len = 0;
@@ -106,7 +107,7 @@ internal struct grrr_string *_grrrs_new_from_cstring(const char* s)
     struct grrr_string *result = grrrs_malloc(_grrr_sizeof(len));
     if (_VOID(result)) {
         GRRRS_OOM;
-        return (void*)(2*sizeof(char));
+        return (void*)_GRRRS_NULL_TOP_PTR;
     }
 
     result->len = len;
@@ -192,7 +193,7 @@ int grrrs_cmp(const char *s1, const char *s2)
     return 0;
 }
 
-internal void *_grrrs_resize(void *s, uint_fast32_t new_cap)
+/*internal*/ void *_grrrs_resize(void *s, uint_fast32_t new_cap)
 {
 #ifdef DEBUG
     assert(_OKP(s));
@@ -207,7 +208,11 @@ internal void *_grrrs_resize(void *s, uint_fast32_t new_cap)
     }
     // TODO(marius): cover the case where new_cap is smaller than gs->len
     // and maybe when it's smaller than gs->cap
-    gs = realloc(gs, _grrr_sizeof(new_cap));
+    gs = grrrs_realloc(gs, _grrr_sizeof(new_cap));
+    if (_VOID(gs)) {
+        GRRRS_OOM ;
+        return (void*)gs;
+    }
     if ((size_t)new_cap < gs->cap) {
         // ensure existing string is null terminated
         gs->data[new_cap] = '\0';
