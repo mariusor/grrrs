@@ -8,6 +8,7 @@ sources:
   - https://git.sr.ht/~mariusor/grrrs
 environment:
   SNOWFLAGS: --no-maybes
+  VGFLAGS: '--run-libc-freeres=yes --leak-check=full --show-leak-kinds=all --track-origins=yes'
 tasks:
   - build: |
       cd grrrs
