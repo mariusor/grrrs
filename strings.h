@@ -36,7 +36,7 @@
 #define internal static
 #define _VOID(A) (NULL == (A))
 #define _OKP(A) (NULL != (A))
-#define _GRRRS_TOP_PTR (-2*sizeof(size_t))
+#define _GRRRS_NULL_TOP_PTR (-2*sizeof(size_t))
 
 #define _grrr_sizeof(C) (sizeof(struct grrr_string) + (C * sizeof(char)) + 1)
 
@@ -80,7 +80,7 @@ internal struct grrr_string *_grrrs_new_empty()
     struct grrr_string *result = grrrs_malloc(_grrr_sizeof(0));
     if (_VOID(result)) {
         GRRRS_OOM;
-        return (void*)_GRRRS_TOP_PTR;
+        return (void*)_GRRRS_NULL_TOP_PTR;
     }
 
     result->len = 0;
@@ -107,7 +107,7 @@ internal struct grrr_string *_grrrs_new_from_cstring(const char* s)
     struct grrr_string *result = grrrs_malloc(_grrr_sizeof(len));
     if (_VOID(result)) {
         GRRRS_OOM;
-        return (void*)_GRRRS_TOP_PTR;
+        return (void*)_GRRRS_NULL_TOP_PTR;
     }
 
     result->len = len;

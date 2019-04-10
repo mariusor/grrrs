@@ -32,13 +32,13 @@ describe(basic) {
         it("Check pointer addresses") {
             char *t = grrrs_new(0);
 
+            defer(_grrrs_free(t));
+
             asserteq_int(grrrs_len(t), 0);
             asserteq_int(grrrs_cap(t), 0);
             asserteq_buf(t, "", 1);
 
             assert_grrrs(t);
-
-            _grrrs_free(t);
         }
     }
 
@@ -46,21 +46,23 @@ describe(basic) {
         it("Zero string") {
             char *t = grrrs_new(0);
 
+            defer(_grrrs_free(t));
+
             asserteq_int(grrrs_len(t), 0);
             asserteq_int(grrrs_cap(t), 0);
             asserteq_buf(t, "", 1);
-            _grrrs_free(t);
         }
 
         it("From static string") {
             char *t = grrrs_new("ana are mere\n");
+
+            defer(_grrrs_free(t));
+
             asserteq_int(grrrs_len(t), 13);
             asserteq_int(grrrs_cap(t), 13);
             asserteq_buf(t, "ana are mere\n", 14);
 
             assert_grrrs(t);
-
-            _grrrs_free(t);
         }
 
         it("From heap string") {
@@ -69,6 +71,7 @@ describe(basic) {
                 h[i] = 't';
             }
             char *t = grrrs_new(h);
+
             asserteq_int(grrrs_len(t), 10);
             asserteq_int(grrrs_cap(t), 10);
             asserteq_buf(t, "tttttttttt", 10);
@@ -93,11 +96,12 @@ describe(basic) {
             char null_block[128] = {0};
 
             asserteq_int(memcmp(t, &null_block, 128), 0);
-
             _grrrs_free(t);
         }
+
         it("Shrink string") {
             char *t = grrrs_new(0);
+
             asserteq_int(grrrs_len(t), 0);
             asserteq_int(grrrs_cap(t), 0);
 
@@ -105,19 +109,12 @@ describe(basic) {
             asserteq_int(grrrs_cap(t), 128);
             asserteq_int(grrrs_len(t), 0);
 
-            {
-                char null_block[128] = {0};
-                asserteq_int(memcmp(t, &null_block, 128), 0);
-            }
-
             t = _grrrs_resize(t, 1);
             asserteq_int(grrrs_cap(t), 1);
             asserteq_int(grrrs_len(t), 0);
 
-            {
-                char null_block[1] = {0};
-                asserteq_int(memcmp(t, &null_block, 1), 0);
-            }
+            char null_block[1] = {0};
+            asserteq_int(memcmp(t, &null_block, 1), 0);
 
             _grrrs_free(t);
         }
@@ -127,19 +124,26 @@ describe(basic) {
             char *s1 = grrrs_new("");
             char *s2 = grrrs_new(0);
 
+            defer(
+                _grrrs_free(s1),
+                _grrrs_free(s2)
+            );
+
             size_t l1 = grrrs_len(s1);
             size_t l2 = grrrs_len(s2);
             assert(l1 == l2);
 
             asserteq_int(grrrs_cmp(s1, s2), 0);
             asserteq_int(grrrs_cmp(s2, s1), 0);
-
-            _grrrs_free(s1);
-            _grrrs_free(s2);
         }
         it("Different lengths") {
             char *s1 = grrrs_new("ana are mere");
             char *s2 = grrrs_new("ana are mere?");
+
+            defer(
+                _grrrs_free(s1),
+                _grrrs_free(s2)
+            );
 
             size_t l1 = grrrs_len(s1);
             size_t l2 = grrrs_len(s2);
@@ -147,13 +151,15 @@ describe(basic) {
 
             asserteq_int(grrrs_cmp(s1, s2), -1);
             asserteq_int(grrrs_cmp(s2, s1), 1);
-
-            _grrrs_free(s1);
-            _grrrs_free(s2);
         }
         it("Same lengths, different chars") {
             char *s1 = grrrs_new("ana are mere");
             char *s2 = grrrs_new("ana are merd");
+
+            defer(
+                _grrrs_free(s1),
+                _grrrs_free(s2)
+            );
 
             size_t l1 = grrrs_len(s1);
             size_t l2 = grrrs_len(s2);
@@ -161,9 +167,6 @@ describe(basic) {
 
             asserteq_int(grrrs_cmp(s1, s2), 1);
             asserteq_int(grrrs_cmp(s2, s1), -1);
-
-            _grrrs_free(s1);
-            _grrrs_free(s2);
         }
     }
 }
