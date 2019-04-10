@@ -37,5 +37,5 @@ run: basic
 test: basic
 	valgrind $(VGFLAGS) ./basic -- $(SNOWFLAGS)
 
-clean: basic
+clean:
 	@rm ./basic
