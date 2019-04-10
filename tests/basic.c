@@ -52,15 +52,31 @@ describe(basic) {
             _grrrs_free(t);
         }
 
-        it("From C string") {
+        it("From static string") {
             char *t = grrrs_new("ana are mere\n");
             asserteq_int(grrrs_len(t), 13);
             asserteq_int(grrrs_cap(t), 13);
-            asserteq_buf(t, "ana are mere\n", 14, "Different strings");
+            asserteq_buf(t, "ana are mere\n", 14);
 
             assert_grrrs(t);
 
             _grrrs_free(t);
+        }
+
+        it("From heap string") {
+            char *h = calloc(1, sizeof(char)*10 + 1);
+            for (unsigned i = 0; i < 10; i++) {
+                h[i] = 't';
+            }
+            char *t = grrrs_new(h);
+            asserteq_int(grrrs_len(t), 10);
+            asserteq_int(grrrs_cap(t), 10);
+            asserteq_buf(t, "tttttttttt", 10);
+
+            assert_grrrs(t);
+
+            _grrrs_free(t);
+            free(h);
         }
     }
 
