@@ -16,7 +16,7 @@ describe(basic) {
 
         assert(grrrs_len(t) == 0);
         assert(grrrs_cap(t) == 0);
-        //asserteq(t, "");
+        asserteq_buf(t, "", 1, "Different strings");
         _grrrs_free(t);
     }
 
@@ -25,6 +25,7 @@ describe(basic) {
 
         assert(grrrs_len(t) == 0);
         assert(grrrs_cap(t) == 0);
+        asserteq_buf(t, "", 1, "Different strings");
         struct grrr_string *gs = _grrrs_ptr(t);
 
         assert((void*)&gs->data == (void*)t);
@@ -42,7 +43,7 @@ describe(basic) {
         char *t = grrrs_new("ana are mere\n");
         assert(grrrs_len(t) == 13);
         assert(grrrs_cap(t) == 13);
-        //asserteq(t, "ana are mere\n");
+        asserteq_buf(t, "ana are mere\n", 14, "Different strings");
         _grrrs_free(t);
     }
 
