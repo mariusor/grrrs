@@ -12,4 +12,5 @@ tasks:
   - build: |
       cd grrrs
       CC=gcc make -C tests test
+      make -C tests clean
       CC=clang make -C tests test

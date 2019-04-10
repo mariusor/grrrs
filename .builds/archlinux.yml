@@ -13,7 +13,10 @@ environment:
 tasks:
   - build: |
       cd grrrs
-      make tests
+      CC=gcc make -C tests test
+      make -C tests clean
+      CC=clang make -C tests test
+
       CC=clang make -C tests check_leak
       CC=clang make -C tests check_undefined
       CC=clang make -C tests check_memory

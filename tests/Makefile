@@ -5,7 +5,7 @@ INCLUDES = -Isnow -I..
 
 SOURCES = basic.c
 
-SNOWFLAGS ?= #--no-maybes --cr
+SNOWFLAGS ?=
 
 VGFLAGS ?= \
 	--quiet --leak-check=full --show-leak-kinds=all \
