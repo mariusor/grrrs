@@ -153,6 +153,45 @@ size_t grrrs_len(const char* s)
     return gs->len;
 }
 
+int grrrs_cmp(const char *s1, const char *s2)
+{
+#ifdef DEBUG
+    assert(_OKP(s1));
+    assert(_OKP(s2));
+#endif
+    struct grrr_string *gs1 = _grrrs_ptr((char*)s1);
+    struct grrr_string *gs2 = _grrrs_ptr((char*)s2);
+
+#ifdef DEBUG
+    assert(_OKP(gs1));
+    assert(_OKP(gs2));
+#endif
+
+    if (gs1->len < gs2->len) {
+        return -1;
+    }
+    if (gs1->len > gs2->len) {
+        return 1;
+    }
+
+    for (size_t i = 0; i < gs1->len; i++) {
+        if (gs1->data[i] == '\0') {
+            GRRRS_ERR("NULL value in string data before length[%zu:%zu]", i, gs1->len);
+        }
+        if (gs2->data[i] == '\0') {
+            GRRRS_ERR("NULL value in string data before length[%zu:%zu]", i, gs2->len);
+        }
+        if (gs1->data[i] < gs2->data[i]) {
+            return -1;
+        }
+        if (gs1->data[i] > gs2->data[i]) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 internal void *_grrrs_resize(void *s, uint_fast32_t new_cap)
 {
 #ifdef DEBUG

@@ -22,7 +22,6 @@ endif
 all: release
 
 test:
-	$(MAKE) clean
 	$(MAKE) -C tests test
 
 release: export CFLAGS := $(CFLAGS) $(COMPILE_FLAGS) $(RCOMPILE_FLAGS)

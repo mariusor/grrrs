@@ -42,7 +42,7 @@ describe(basic) {
         }
     }
 
-    subdesc(initialiaztion) {
+    subdesc(initialization) {
         it("Zero string") {
             char *t = grrrs_new(0);
 
@@ -91,7 +91,6 @@ describe(basic) {
 
             {
                 char null_block[128] = {0};
-
                 asserteq_int(memcmp(t, &null_block, 128), 0);
             }
 
@@ -101,11 +100,54 @@ describe(basic) {
 
             {
                 char null_block[1] = {0};
-
                 asserteq_int(memcmp(t, &null_block, 1), 0);
             }
 
             _grrrs_free(t);
+        }
+    }
+    subdesc(comparisons) {
+        it("Empty strings") {
+            char *s1 = grrrs_new("");
+            char *s2 = grrrs_new(0);
+
+            size_t l1 = grrrs_len(s1);
+            size_t l2 = grrrs_len(s2);
+            assert(l1 == l2);
+
+            asserteq_int(grrrs_cmp(s1, s2), 0);
+            asserteq_int(grrrs_cmp(s2, s1), 0);
+
+            _grrrs_free(s1);
+            _grrrs_free(s2);
+        }
+        it("Different lengths") {
+            char *s1 = grrrs_new("ana are mere");
+            char *s2 = grrrs_new("ana are mere?");
+
+            size_t l1 = grrrs_len(s1);
+            size_t l2 = grrrs_len(s2);
+            assert(l1 < l2);
+
+            asserteq_int(grrrs_cmp(s1, s2), -1);
+            asserteq_int(grrrs_cmp(s2, s1), 1);
+
+            _grrrs_free(s1);
+            _grrrs_free(s2);
+        }
+        it("Same lengths, different chars") {
+            char *s1 = grrrs_new("ana are mere");
+            char *s2 = grrrs_new("ana are merd");
+
+            size_t l1 = grrrs_len(s1);
+            size_t l2 = grrrs_len(s2);
+            assert(l1 == l2);
+
+            asserteq_int(grrrs_cmp(s1, s2), 1);
+            asserteq_int(grrrs_cmp(s2, s1), -1);
+
+            _grrrs_free(s1);
+            _grrrs_free(s2);
         }
     }
 }
