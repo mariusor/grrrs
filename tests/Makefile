@@ -19,17 +19,14 @@ export LDFLAGS := $(LDFLAGS) $(LINK_FLAGS)
 
 .PHONY: check_leak check check_memory check_undefined run test clean
 
-check_leak: basic allocations
+check_leak: run
 check_leak: export CFLAGS := $(CFLAGS) $(COMPILE_FLAGS) -fsanitize=address
-check_leak: run clean
 
-check_leak: basic allocations
+check_memory: run
 check_memory: export CFLAGS := $(CFLAGS) $(COMPILE_FLAGS) -fsanitize=memory
-check_memory: run clean
 
-check_leak: basic allocations
+check_undefined: run
 check_undefined: export CFLAGS := $(CFLAGS) $(COMPILE_FLAGS) -fsanitize=undefined
-check_undefined: run clean
 
 run: clean basic allocations
 	./basic $(SNOWFLAGS)
