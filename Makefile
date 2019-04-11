@@ -33,8 +33,8 @@ debug: export LDFLAGS := $(LDFLAGS) $(LINK_FLAGS) $(DLINK_FLAGS)
 debug: $(TARGET)
 
 clean:
-	$(RM) $(TARGET)
-	$(MAKE) -C tests clean
+	-$(RM) $(TARGET)
+	-$(MAKE) -C tests clean
 
 install: $(TARGET) $(TARGET).1
 	install $(TARGET) $(DESTDIR)$(INSTALL_PREFIX)/lib

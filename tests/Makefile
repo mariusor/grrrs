@@ -5,7 +5,7 @@ INCLUDES = -Isnow -I..
 
 SOURCES = basic.c
 
-SNOWFLAGS ?=
+SNOWFLAGS ?= --no-maybes --no-cr --no-quiet
 
 VGFLAGS ?= \
 	--quiet --leak-check=full --show-leak-kinds=all \
@@ -14,7 +14,7 @@ VGFLAGS ?= \
 export CFLAGS := $(CFLAGS) $(COMPILE_FLAGS)
 export LDFLAGS := $(LDFLAGS) $(LINK_FLAGS)
 
-.c:
+.c: ../*.h
 	$(CC) $(CFLAGS) $(INCLUDES) $< $(LDFLAGS) -o$@
 
 .PHONY: check_leak check check_memory check_undefined run test clean
@@ -31,13 +31,13 @@ check_leak: basic allocations
 check_undefined: export CFLAGS := $(CFLAGS) $(COMPILE_FLAGS) -fsanitize=undefined
 check_undefined: run clean
 
-run: basic allocations ../*.h
+run: clean basic allocations
 	./basic $(SNOWFLAGS)
 	./allocations $(SNOWFLAGS)
 
-test: basic allocations ../*.h
-	valgrind $(VGFLAGS) ./basic -- $(SNOWFLAGS)
-	valgrind $(VGFLAGS) ./allocations -- $(SNOWFLAGS)
+test: clean basic allocations
+	valgrind $(VGFLAGS) -- ./basic $(SNOWFLAGS)
+	valgrind $(VGFLAGS) -- ./allocations $(SNOWFLAGS)
 
 clean:
-	@rm ./basic ./allocations
+	-$(RM) ./basic ./allocations
