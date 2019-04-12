@@ -199,5 +199,33 @@ describe(basic) {
             asserteq_int(grrrs_cap(t), 4);
         }
     }
+    subdesc(trim_right) {
+        it("no matches to trim") {
+            char *t = grrrs_new("ana");
+            defer(_grrrs_free(t));
+
+            assert_grrrs(t);
+            asserteq_int(grrrs_len(t), 3);
+            asserteq_int(grrrs_cap(t), 3);
+
+            _grrrs_trim_right(t, 0);
+            asserteq_buf(t, "ana", 3);
+            asserteq_int(grrrs_len(t), 3);
+            asserteq_int(grrrs_cap(t), 3);
+        }
+        it("custom character 'a'") {
+            char *t = grrrs_new("aana");
+            defer(_grrrs_free(t));
+
+            assert_grrrs(t);
+            asserteq_int(grrrs_len(t), 4);
+            asserteq_int(grrrs_cap(t), 4);
+
+            _grrrs_trim_right(t, "a");
+            asserteq_buf(t, "aan", 3);
+            asserteq_int(grrrs_len(t), 3);
+            asserteq_int(grrrs_cap(t), 4);
+        }
+    }
 }
 snow_main();

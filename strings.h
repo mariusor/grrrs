@@ -283,4 +283,50 @@ _to_trim_free:
     return result;
 }
 
+void *_grrrs_trim_right(char *s, const char *c)
+{
+    char *result = s;
+    char *to_trim = NULL;
+    if (_VOID(s)) { return result; }
+
+    struct grrr_string *gs = _grrrs_ptr(s);
+    if (_VOID(gs)) { return result; }
+
+    if (_VOID(c)) {
+        to_trim = grrrs_new(" \t\r\n");
+    } else {
+        to_trim = grrrs_new(c);
+    }
+
+    int8_t stop = 0;
+    uint32_t new_len = gs->len;
+    for (int32_t i = gs->len - 1; i >= 0; i--) {
+        for (uint32_t j = 0; j < grrrs_len(to_trim); j++) {
+            char t = to_trim[j];
+            if (gs->data[i] == '\0') {
+                break;
+            }
+            if (gs->data[i] == t) {
+                gs->data[i] = '\0';
+                new_len--;
+                break;
+            } else {
+                stop = 1;
+            }
+        }
+        if (stop) {
+            break;
+        }
+    }
+    if (new_len == gs->len) {
+        goto _to_trim_free;
+    }
+    gs->len = (uint32_t)new_len;
+
+_to_trim_free:
+    _grrrs_free(to_trim);
+
+    return result;
+}
+
 #endif // GRRRS_STRINGS_H
