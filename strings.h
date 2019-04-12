@@ -206,7 +206,7 @@ internal struct grrr_string *__grrrs_resize(struct grrr_string *gs, uint32_t new
     gs = grrrs_realloc(gs, _grrr_sizeof(new_cap));
     if (_VOID(gs)) {
         GRRRS_OOM ;
-        return (void*)gs;
+        return (void*)_GRRRS_NULL_TOP_PTR;
     }
     if ((uint32_t)new_cap < gs->cap) {
         // ensure existing string is null terminated
@@ -222,7 +222,7 @@ internal struct grrr_string *__grrrs_resize(struct grrr_string *gs, uint32_t new
     return gs;
 }
 
-/*internal*/ void *_grrrs_resize(void *s, uint32_t new_cap)
+void *_grrrs_resize(void *s, uint32_t new_cap)
 {
 #ifdef DEBUG
     assert(_OKP(s));
