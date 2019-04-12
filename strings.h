@@ -245,15 +245,15 @@ void *_grrrs_trim_left(char *s, const char *c)
     } else {
         to_trim = grrrs_new(c);
     }
-    goto _free_temp_trim;
+    //GRRRS_ERR("\nreceived [%p]:%s trimming: '%s'\n", s, s, c);
 
     int trim_end = -1;
     size_t new_len = gs->len;
     for (size_t i = 0; i < gs->len; i++) {
-        GRRRS_ERR("\nchar[%zu] '%c'\n", i, gs->data[i]);
+        //GRRRS_ERR("\nchar[%zu] '%c'\n", i, gs->data[i]);
         for (size_t j = 0; j < grrrs_len(to_trim); j++) {
             char t = to_trim[j];
-            GRRRS_ERR("\n\twith char[%zu] '%c'\n", j, t);
+            //GRRRS_ERR("\n\twith char[%zu] '%c'\n", j, t);
             if (gs->data[i] == t) {
                 new_len--;
                 break;
@@ -266,19 +266,24 @@ void *_grrrs_trim_left(char *s, const char *c)
     }
     GRRRS_ERR("\n[%zu:%zu:%d] \n", new_len, gs->len, trim_end);
     if (new_len == gs->len) {
-        goto _free_temp_trim;
+        goto _to_trim_free;
     }
-    char *temp = calloc(1, (new_len+1)*sizeof(char));
+    char *temp = grrrs_malloc((new_len+1)*sizeof(char));
     for (size_t k = 0; k < new_len; k++) {
-        GRRRS_ERR("\n copying from %zu to %zu : %c", k+trim_end, k, gs->data[trim_end + k]);
+        //GRRRS_ERR("\n copying from %zu to %zu : %c", k+trim_end, k, gs->data[trim_end + k]);
         temp[k] = gs->data[trim_end + k];
     }
-    GRRRS_ERR("\n temp[%zu] %s", new_len, temp);
+    //GRRRS_ERR("\n temp[%zu] %s", new_len, temp);
     for (size_t k = 0; k < new_len; k++) {
         gs->data[k] = temp[k];
     }
+    for (size_t k = new_len; k < gs->len; k++) {
+        gs->data[k] = '\0';
+    }
+    gs->len = (size_t)new_len;
+    grrrs_free(temp);
 
-_free_temp_trim:
+_to_trim_free:
     _grrrs_free(to_trim);
 
     return result;
