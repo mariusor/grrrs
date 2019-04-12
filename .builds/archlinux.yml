@@ -10,6 +10,7 @@ sources:
   - https://git.sr.ht/~mariusor/grrrs
 environment:
   SNOWFLAGS: --no-maybes
+  CFLAGS:-DNO_GRRRS_ERR
 tasks:
   - build: |
       cd grrrs
