@@ -200,6 +200,45 @@ describe(basic) {
             asserteq_int(grrrs_len(t), 2);
             asserteq_int(grrrs_cap(t), 4);
         }
+        it("trim to empty 'a'") {
+            char *t = grrrs_new("aaaaaaaa");
+            defer(_grrrs_free(t));
+
+            assert_grrrs(t);
+            asserteq_int(grrrs_len(t), 8);
+            asserteq_int(grrrs_cap(t), 8);
+
+            _grrrs_trim_left(t, "a");
+            asserteq_buf(t, "", 1);
+            asserteq_int(grrrs_len(t), 0);
+            asserteq_int(grrrs_cap(t), 8);
+        }
+        it("trim to empty 'ab'") {
+            char *t = grrrs_new("abaabbba");
+            defer(_grrrs_free(t));
+
+            assert_grrrs(t);
+            asserteq_int(grrrs_len(t), 8);
+            asserteq_int(grrrs_cap(t), 8);
+
+            _grrrs_trim_left(t, "ab");
+            asserteq_buf(t, "", 1);
+            asserteq_int(grrrs_len(t), 0);
+            asserteq_int(grrrs_cap(t), 8);
+        }
+        it("trim to empty default whitespace characters") {
+            char *t = grrrs_new(" \t  \r  \n");
+            defer(_grrrs_free(t));
+
+            assert_grrrs(t);
+            asserteq_int(grrrs_len(t), 8);
+            asserteq_int(grrrs_cap(t), 8);
+
+            _grrrs_trim_left(t, 0);
+            asserteq_buf(t, "", 1);
+            asserteq_int(grrrs_len(t), 0);
+            asserteq_int(grrrs_cap(t), 8);
+        }
     }
     subdesc(trim_right) {
         it("no matches to trim") {
@@ -227,6 +266,45 @@ describe(basic) {
             asserteq_buf(t, "aan", 3);
             asserteq_int(grrrs_len(t), 3);
             asserteq_int(grrrs_cap(t), 4);
+        }
+        it("trim to empty 'a'") {
+            char *t = grrrs_new("aaaaaaaa");
+            defer(_grrrs_free(t));
+
+            assert_grrrs(t);
+            asserteq_int(grrrs_len(t), 8);
+            asserteq_int(grrrs_cap(t), 8);
+
+            _grrrs_trim_right(t, "a");
+            asserteq_buf(t, "", 1);
+            asserteq_int(grrrs_len(t), 0);
+            asserteq_int(grrrs_cap(t), 8);
+        }
+        it("trim to empty 'ab'") {
+            char *t = grrrs_new("abaabbba");
+            defer(_grrrs_free(t));
+
+            assert_grrrs(t);
+            asserteq_int(grrrs_len(t), 8);
+            asserteq_int(grrrs_cap(t), 8);
+
+            _grrrs_trim_right(t, "ab");
+            asserteq_buf(t, "", 1);
+            asserteq_int(grrrs_len(t), 0);
+            asserteq_int(grrrs_cap(t), 8);
+        }
+        it("trim to empty default whitespace characters") {
+            char *t = grrrs_new(" \t  \r  \n");
+            defer(_grrrs_free(t));
+
+            assert_grrrs(t);
+            asserteq_int(grrrs_len(t), 8);
+            asserteq_int(grrrs_cap(t), 8);
+
+            _grrrs_trim_right(t, 0);
+            asserteq_buf(t, "", 1);
+            asserteq_int(grrrs_len(t), 0);
+            asserteq_int(grrrs_cap(t), 8);
         }
     }
 }

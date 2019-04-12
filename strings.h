@@ -245,17 +245,23 @@ void *_grrrs_trim_left(char *s, const char *c)
     } else {
         to_trim = grrrs_new(c);
     }
+    uint32_t len_to_trim = grrrs_len(to_trim);
 
     int trim_end = -1;
     uint32_t new_len = gs->len;
     for (uint32_t i = 0; i < gs->len; i++) {
-        for (uint32_t j = 0; j < grrrs_len(to_trim); j++) {
+        for (uint32_t j = 0; j < len_to_trim; j++) {
             char t = to_trim[j];
+            if (gs->data[i] == '\0') {
+                break;
+            }
             if (gs->data[i] == t) {
                 new_len--;
                 break;
             }
-            trim_end = i;
+            if (j == len_to_trim - 1) {
+                trim_end = i;
+            }
         }
         if (trim_end >= 0) {
             break;
@@ -293,15 +299,16 @@ void *_grrrs_trim_right(char *s, const char *c)
     if (_VOID(gs)) { return result; }
 
     if (_VOID(c)) {
-        to_trim = grrrs_new(" \t\r\n");
+        to_trim = grrrs_new("\r \t\n");
     } else {
         to_trim = grrrs_new(c);
     }
+    uint32_t len_to_trim = grrrs_len(to_trim);
 
     int8_t stop = 0;
     uint32_t new_len = gs->len;
     for (int32_t i = gs->len - 1; i >= 0; i--) {
-        for (uint32_t j = 0; j < grrrs_len(to_trim); j++) {
+        for (uint32_t j = 0; j < len_to_trim; j++) {
             char t = to_trim[j];
             if (gs->data[i] == '\0') {
                 break;
@@ -310,7 +317,8 @@ void *_grrrs_trim_right(char *s, const char *c)
                 gs->data[i] = '\0';
                 new_len--;
                 break;
-            } else {
+            }
+            if (j == len_to_trim - 1) {
                 stop = 1;
             }
         }
