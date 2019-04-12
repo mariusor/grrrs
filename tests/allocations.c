@@ -3,7 +3,9 @@
  */
 
 #include <stdio.h>
+#ifndef NO_GRRRS_ERR
 #define GRRRS_ERR(...) fprintf(stderr, __VA_ARGS__)
+#endif
 #define GRRRS_OOM assert("Failed to allocate memory")
 #define grrrs_malloc(...) (NULL)
 #define grrrs_realloc(...) (NULL)
