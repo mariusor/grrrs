@@ -36,5 +36,8 @@ test: clean $(TARGETS)
 clean:
 	$(RM) -f $(TARGETS)
 
-$(TARGETS): *.c ../*.h
+allocations: allocations.c ../*.h
+	$(CC) $(CFLAGS) $(INCLUDES) $< $(LDFLAGS) -o$@
+
+basic: basic.c ../*.h
 	$(CC) $(CFLAGS) $(INCLUDES) $< $(LDFLAGS) -o$@
