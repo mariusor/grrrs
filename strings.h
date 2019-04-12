@@ -36,9 +36,9 @@
 #define internal static
 #define _VOID(A) (NULL == (A))
 #define _OKP(A) (NULL != (A))
-#define _GRRRS_NULL_TOP_PTR (-2*sizeof(size_t))
+#define _GRRRS_NULL_TOP_PTR (-2 * sizeof(uint32_t))
 
-#define _grrr_sizeof(C) (sizeof(struct grrr_string) + (C * sizeof(char)) + 1)
+#define _grrr_sizeof(C) (sizeof(struct grrr_string) + ((C+1) * sizeof(char)))
 
 #define grrrs_new(A) (_VOID(A) ? \
     (char *)&_grrrs_new_empty()->data : \
@@ -46,8 +46,8 @@
 
 // TODO(marius): investigate how this aligns
 struct grrr_string {
-    size_t len; /* currently used size of data[] */
-    size_t cap; /* available size for data[] */
+    uint32_t len; /* currently used size of data[] */
+    uint32_t cap; /* available size for data[] */
     char data[];
 };
 
@@ -55,7 +55,7 @@ struct grrr_string {
 
 internal struct grrr_string *_grrrs_ptr(char *s)
 {
-    return (struct grrr_string*)(s - 2 * sizeof(size_t));
+    return (struct grrr_string*)(s + _GRRRS_NULL_TOP_PTR);
 }
 
 void _grrrs_free(char *s)
@@ -90,11 +90,11 @@ internal struct grrr_string *_grrrs_new_empty()
     return result;
 }
 
-internal size_t __strlen(const char *s)
+internal uint32_t __strlen(const char *s)
 {
     if (_VOID(s)) { return -1; }
 
-    size_t result = 0;
+    uint32_t result = 0;
 
     while (*s++ != '\0') { result++; }
 
@@ -121,7 +121,7 @@ internal struct grrr_string *_grrrs_new_from_cstring(const char* s)
     return result;
 }
 
-size_t grrrs_cap(const char* s)
+uint32_t grrrs_cap(const char* s)
 {
 #ifdef DEBUG
     assert(_OKP(s));
@@ -136,7 +136,7 @@ size_t grrrs_cap(const char* s)
     return gs->cap;
 }
 
-size_t grrrs_len(const char* s)
+uint32_t grrrs_len(const char* s)
 {
 #ifdef DEBUG
     assert(_OKP(s));
@@ -175,12 +175,12 @@ int grrrs_cmp(const char *s1, const char *s2)
         return 1;
     }
 
-    for (size_t i = 0; i < gs1->len; i++) {
+    for (uint32_t i = 0; i < gs1->len; i++) {
         if (gs1->data[i] == '\0') {
-            GRRRS_ERR("NULL value in string data before length[%zu:%zu]", i, gs1->len);
+            GRRRS_ERR("NULL value in string data before length[%" PRIu32 ":%" PRIu32 "]", i, gs1->len);
         }
         if (gs2->data[i] == '\0') {
-            GRRRS_ERR("NULL value in string data before length[%zu:%zu]", i, gs2->len);
+            GRRRS_ERR("NULL value in string data before length[%" PRIu32 ":%" PRIu32 "]", i, gs2->len);
         }
         if (gs1->data[i] < gs2->data[i]) {
             return -1;
@@ -193,13 +193,13 @@ int grrrs_cmp(const char *s1, const char *s2)
     return 0;
 }
 
-internal struct grrr_string *__grrrs_resize(struct grrr_string *gs, size_t new_cap)
+internal struct grrr_string *__grrrs_resize(struct grrr_string *gs, uint32_t new_cap)
 {
 #ifdef DEBUG
     assert(_OKP(gs));
 #endif
     if (new_cap < gs->len) {
-        GRRRS_ERR("new cap should be larger than existing length %zu \n", gs->len);
+        GRRRS_ERR("new cap should be larger than existing length %" PRIu32 " \n", gs->len);
     }
     // TODO(marius): cover the case where new_cap is smaller than gs->len
     // and maybe when it's smaller than gs->cap
@@ -208,7 +208,7 @@ internal struct grrr_string *__grrrs_resize(struct grrr_string *gs, size_t new_c
         GRRRS_OOM ;
         return (void*)gs;
     }
-    if ((size_t)new_cap < gs->cap) {
+    if ((uint32_t)new_cap < gs->cap) {
         // ensure existing string is null terminated
         gs->data[new_cap] = '\0';
     }
@@ -222,7 +222,7 @@ internal struct grrr_string *__grrrs_resize(struct grrr_string *gs, size_t new_c
     return gs;
 }
 
-/*internal*/ void *_grrrs_resize(void *s, size_t new_cap)
+/*internal*/ void *_grrrs_resize(void *s, uint32_t new_cap)
 {
 #ifdef DEBUG
     assert(_OKP(s));
@@ -245,15 +245,12 @@ void *_grrrs_trim_left(char *s, const char *c)
     } else {
         to_trim = grrrs_new(c);
     }
-    //GRRRS_ERR("\nreceived [%p]:%s trimming: '%s'\n", s, s, c);
 
     int trim_end = -1;
-    size_t new_len = gs->len;
-    for (size_t i = 0; i < gs->len; i++) {
-        //GRRRS_ERR("\nchar[%zu] '%c'\n", i, gs->data[i]);
-        for (size_t j = 0; j < grrrs_len(to_trim); j++) {
+    uint32_t new_len = gs->len;
+    for (uint32_t i = 0; i < gs->len; i++) {
+        for (uint32_t j = 0; j < grrrs_len(to_trim); j++) {
             char t = to_trim[j];
-            //GRRRS_ERR("\n\twith char[%zu] '%c'\n", j, t);
             if (gs->data[i] == t) {
                 new_len--;
                 break;
@@ -264,23 +261,20 @@ void *_grrrs_trim_left(char *s, const char *c)
             break;
         }
     }
-    GRRRS_ERR("\n[%zu:%zu:%d] \n", new_len, gs->len, trim_end);
     if (new_len == gs->len) {
         goto _to_trim_free;
     }
     char *temp = grrrs_malloc((new_len+1)*sizeof(char));
-    for (size_t k = 0; k < new_len; k++) {
-        //GRRRS_ERR("\n copying from %zu to %zu : %c", k+trim_end, k, gs->data[trim_end + k]);
+    for (uint32_t k = 0; k < new_len; k++) {
         temp[k] = gs->data[trim_end + k];
     }
-    //GRRRS_ERR("\n temp[%zu] %s", new_len, temp);
-    for (size_t k = 0; k < new_len; k++) {
+    for (uint32_t k = 0; k < new_len; k++) {
         gs->data[k] = temp[k];
     }
-    for (size_t k = new_len; k < gs->len; k++) {
+    for (uint32_t k = new_len; k < gs->len; k++) {
         gs->data[k] = '\0';
     }
-    gs->len = (size_t)new_len;
+    gs->len = (uint32_t)new_len;
     grrrs_free(temp);
 
 _to_trim_free:

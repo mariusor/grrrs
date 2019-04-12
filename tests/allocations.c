@@ -30,7 +30,6 @@ describe(OOM) {
 
         t = _grrrs_resize(t, 128);
         asserteq_ptr(t, NULL);
-
     }
 }
 
