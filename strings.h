@@ -193,13 +193,8 @@ int grrrs_cmp(const char *s1, const char *s2)
     return 0;
 }
 
-/*internal*/ void *_grrrs_resize(void *s, uint_fast32_t new_cap)
+internal struct grrr_string *__grrrs_resize(struct grrr_string *gs, size_t new_cap)
 {
-#ifdef DEBUG
-    assert(_OKP(s));
-#endif
-    struct grrr_string *gs = _grrrs_ptr((char*)s);
-
 #ifdef DEBUG
     assert(_OKP(gs));
 #endif
@@ -224,7 +219,69 @@ int grrrs_cmp(const char *s1, const char *s2)
     }
     gs->cap = new_cap;
 
-    return gs->data;
+    return gs;
+}
+
+/*internal*/ void *_grrrs_resize(void *s, size_t new_cap)
+{
+#ifdef DEBUG
+    assert(_OKP(s));
+#endif
+    struct grrr_string *gs = _grrrs_ptr((char*)s);
+    return __grrrs_resize(gs, new_cap)->data;
+}
+
+void *_grrrs_trim_left(char *s, const char *c)
+{
+    char *result = s;
+    char *to_trim = NULL;
+    if (_VOID(s)) { return result; }
+
+    struct grrr_string *gs = _grrrs_ptr(s);
+    if (_VOID(gs)) { return result; }
+
+    if (_VOID(c)) {
+        to_trim = grrrs_new(" \t\r\n");
+    } else {
+        to_trim = grrrs_new(c);
+    }
+    goto _free_temp_trim;
+
+    int trim_end = -1;
+    size_t new_len = gs->len;
+    for (size_t i = 0; i < gs->len; i++) {
+        GRRRS_ERR("\nchar[%zu] '%c'\n", i, gs->data[i]);
+        for (size_t j = 0; j < grrrs_len(to_trim); j++) {
+            char t = to_trim[j];
+            GRRRS_ERR("\n\twith char[%zu] '%c'\n", j, t);
+            if (gs->data[i] == t) {
+                new_len--;
+                break;
+            }
+            trim_end = i;
+        }
+        if (trim_end >= 0) {
+            break;
+        }
+    }
+    GRRRS_ERR("\n[%zu:%zu:%d] \n", new_len, gs->len, trim_end);
+    if (new_len == gs->len) {
+        goto _free_temp_trim;
+    }
+    char *temp = calloc(1, (new_len+1)*sizeof(char));
+    for (size_t k = 0; k < new_len; k++) {
+        GRRRS_ERR("\n copying from %zu to %zu : %c", k+trim_end, k, gs->data[trim_end + k]);
+        temp[k] = gs->data[trim_end + k];
+    }
+    GRRRS_ERR("\n temp[%zu] %s", new_len, temp);
+    for (size_t k = 0; k < new_len; k++) {
+        gs->data[k] = temp[k];
+    }
+
+_free_temp_trim:
+    _grrrs_free(to_trim);
+
+    return result;
 }
 
 #endif // GRRRS_STRINGS_H

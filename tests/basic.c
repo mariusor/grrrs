@@ -167,6 +167,36 @@ describe(basic) {
 
             asserteq_int(grrrs_cmp(s1, s2), 1);
             asserteq_int(grrrs_cmp(s2, s1), -1);
+
+        }
+    }
+
+    subdesc(trim) {
+        it("nothing to trim") {
+            char *t = grrrs_new("ana");
+            defer(_grrrs_free(t));
+
+            assert_grrrs(t);
+            asserteq_int(grrrs_len(t), 3);
+            asserteq_int(grrrs_cap(t), 3);
+
+            _grrrs_trim_left(t, 0);
+            asserteq_buf(t, "ana", 3);
+            asserteq_int(grrrs_len(t), 3);
+            asserteq_int(grrrs_cap(t), 3);
+        }
+        it("custom character 'a'") {
+            char *t = grrrs_new("ana");
+            defer(_grrrs_free(t));
+
+            assert_grrrs(t);
+            asserteq_int(grrrs_len(t), 3);
+            asserteq_int(grrrs_cap(t), 3);
+
+            _grrrs_trim_left(t, "a");
+            asserteq_buf(t, "n", 1);
+            asserteq_int(grrrs_len(t), 1);
+            asserteq_int(grrrs_cap(t), 1);
         }
     }
 }
