@@ -7,7 +7,7 @@ sources:
   - https://git.sr.ht/~mariusor/grrrs
 environment:
   SNOWFLAGS: --no-maybes
-  CFALGS: "-I/usr/local/include -DNO_GRRRS_ERR"
+  CFLAGS: "-I/usr/local/include -DNO_GRRRS_ERR"
   LDFLAGS: -L/usr/local/lib
 tasks:
   - build: |
