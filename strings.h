@@ -337,4 +337,6 @@ _to_trim_free:
     return result;
 }
 
+#define grrrs_trim(A, B) _grrrs_trim_right(_grrrs_trim_left(A, B), B)
+
 #endif // GRRRS_STRINGS_H

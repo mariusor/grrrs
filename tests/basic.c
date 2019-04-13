@@ -239,6 +239,19 @@ describe(basic) {
             asserteq_int(grrrs_len(t), 0);
             asserteq_int(grrrs_cap(t), 8);
         }
+        it("trim default whitespace characters") {
+            char *t = grrrs_new("       ana are mere\n");
+            defer(_grrrs_free(t));
+
+            assert_grrrs(t);
+            asserteq_int(grrrs_len(t), 20);
+            asserteq_int(grrrs_cap(t), 20);
+
+            _grrrs_trim_left(t, 0);
+            asserteq_buf(t, "ana are mere\n", 13);
+            asserteq_int(grrrs_len(t), 13);
+            asserteq_int(grrrs_cap(t), 20);
+        }
     }
     subdesc(trim_right) {
         it("no matches to trim") {
@@ -305,6 +318,99 @@ describe(basic) {
             asserteq_buf(t, "", 1);
             asserteq_int(grrrs_len(t), 0);
             asserteq_int(grrrs_cap(t), 8);
+        }
+        it("trim default whitespace characters") {
+            char *t = grrrs_new("       ana are mere\n");
+            defer(_grrrs_free(t));
+
+            assert_grrrs(t);
+            asserteq_int(grrrs_len(t), 20);
+            asserteq_int(grrrs_cap(t), 20);
+
+            _grrrs_trim_right(t, 0);
+            asserteq_buf(t, "       ana are mere", 19);
+            asserteq_int(grrrs_len(t), 19);
+            asserteq_int(grrrs_cap(t), 20);
+        }
+    }
+    subdesc(trim_both) {
+        it("no matches to trim") {
+            char *t = grrrs_new("ana");
+            defer(_grrrs_free(t));
+
+            assert_grrrs(t);
+            asserteq_int(grrrs_len(t), 3);
+            asserteq_int(grrrs_cap(t), 3);
+
+            grrrs_trim(t, 0);
+            asserteq_buf(t, "ana", 3);
+            asserteq_int(grrrs_len(t), 3);
+            asserteq_int(grrrs_cap(t), 3);
+        }
+        it("custom character 'a'") {
+            char *t = grrrs_new("aana");
+            defer(_grrrs_free(t));
+
+            assert_grrrs(t);
+            asserteq_int(grrrs_len(t), 4);
+            asserteq_int(grrrs_cap(t), 4);
+
+            grrrs_trim(t, "a");
+            asserteq_buf(t, "n", 1);
+            asserteq_int(grrrs_len(t), 1);
+            asserteq_int(grrrs_cap(t), 4);
+        }
+        it("trim to empty 'a'") {
+            char *t = grrrs_new("aaaaaaaa");
+            defer(_grrrs_free(t));
+
+            assert_grrrs(t);
+            asserteq_int(grrrs_len(t), 8);
+            asserteq_int(grrrs_cap(t), 8);
+
+            grrrs_trim(t, "a");
+            asserteq_buf(t, "", 1);
+            asserteq_int(grrrs_len(t), 0);
+            asserteq_int(grrrs_cap(t), 8);
+        }
+        it("trim to empty 'ab'") {
+            char *t = grrrs_new("abaabbba");
+            defer(_grrrs_free(t));
+
+            assert_grrrs(t);
+            asserteq_int(grrrs_len(t), 8);
+            asserteq_int(grrrs_cap(t), 8);
+
+            grrrs_trim(t, "ab");
+            asserteq_buf(t, "", 1);
+            asserteq_int(grrrs_len(t), 0);
+            asserteq_int(grrrs_cap(t), 8);
+        }
+        it("trim to empty default whitespace characters") {
+            char *t = grrrs_new(" \t  \r  \n");
+            defer(_grrrs_free(t));
+
+            assert_grrrs(t);
+            asserteq_int(grrrs_len(t), 8);
+            asserteq_int(grrrs_cap(t), 8);
+
+            grrrs_trim(t, 0);
+            asserteq_buf(t, "", 1);
+            asserteq_int(grrrs_len(t), 0);
+            asserteq_int(grrrs_cap(t), 8);
+        }
+        it("trim default whitespace characters") {
+            char *t = grrrs_new("       ana are mere\n");
+            defer(_grrrs_free(t));
+
+            assert_grrrs(t);
+            asserteq_int(grrrs_len(t), 20);
+            asserteq_int(grrrs_cap(t), 20);
+
+            grrrs_trim(t, 0);
+            asserteq_buf(t, "ana are mere", 12);
+            asserteq_int(grrrs_len(t), 12);
+            asserteq_int(grrrs_cap(t), 20);
         }
     }
 }
