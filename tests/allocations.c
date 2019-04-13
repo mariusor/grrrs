@@ -7,15 +7,15 @@
 #define GRRRS_ERR(...) fprintf(stderr, __VA_ARGS__)
 #endif
 #define GRRRS_OOM assert("Failed to allocate memory")
-#define grrrs_malloc(...) (NULL)
-#define grrrs_realloc(...) (NULL)
+#define grrrs_std_alloc(...) (NULL)
+#define grrrs_std_realloc(...) (NULL)
 
 #include "strings.h"
 #include <snow/snow.h>
 
 describe(OOM) {
     it ("Check new with OOM") {
-        char *t = grrrs_new("test");
+        char *t = grrrs_from_string("test");
         asserteq_ptr(t, NULL);
 
         _grrrs_free(t);

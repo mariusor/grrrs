@@ -32,7 +32,7 @@ describe(basic) {
     }
     subdesc(pointer plumbing) {
         it("Check pointer addresses") {
-            char *t = grrrs_new(0);
+            char *t = grrrs_from_string(0);
 
             defer(_grrrs_free(t));
 
@@ -46,7 +46,7 @@ describe(basic) {
 
     subdesc(initialization) {
         it("Zero string") {
-            char *t = grrrs_new(0);
+            char *t = grrrs_from_string(0);
 
             defer(_grrrs_free(t));
 
@@ -56,7 +56,7 @@ describe(basic) {
         }
 
         it("From static string") {
-            char *t = grrrs_new("ana are mere\n");
+            char *t = grrrs_from_string("ana are mere\n");
 
             defer(_grrrs_free(t));
 
@@ -72,7 +72,7 @@ describe(basic) {
             for (unsigned i = 0; i < 10; i++) {
                 h[i] = 't';
             }
-            char *t = grrrs_new(h);
+            char *t = grrrs_from_string(h);
 
             asserteq_int(grrrs_len(t), 10);
             asserteq_int(grrrs_cap(t), 10);
@@ -87,7 +87,7 @@ describe(basic) {
 
     subdesc(operations) {
         it("Grow string") {
-            char *t = grrrs_new(0);
+            char *t = grrrs_from_string(0);
             asserteq_int(grrrs_len(t), 0);
             asserteq_int(grrrs_cap(t), 0);
 
@@ -102,7 +102,7 @@ describe(basic) {
         }
 
         it("Shrink string") {
-            char *t = grrrs_new(0);
+            char *t = grrrs_from_string(0);
 
             asserteq_int(grrrs_len(t), 0);
             asserteq_int(grrrs_cap(t), 0);
@@ -123,8 +123,8 @@ describe(basic) {
     }
     subdesc(comparisons) {
         it("Empty strings") {
-            char *s1 = grrrs_new("");
-            char *s2 = grrrs_new(0);
+            char *s1 = grrrs_from_string("");
+            char *s2 = grrrs_from_string(0);
 
             defer(
                 _grrrs_free(s1),
@@ -139,8 +139,8 @@ describe(basic) {
             asserteq_int(grrrs_cmp(s2, s1), 0);
         }
         it("Different lengths") {
-            char *s1 = grrrs_new("ana are mere");
-            char *s2 = grrrs_new("ana are mere?");
+            char *s1 = grrrs_from_string("ana are mere");
+            char *s2 = grrrs_from_string("ana are mere?");
 
             defer(
                 _grrrs_free(s1),
@@ -155,8 +155,8 @@ describe(basic) {
             asserteq_int(grrrs_cmp(s2, s1), 1);
         }
         it("Same lengths, different chars") {
-            char *s1 = grrrs_new("ana are mere");
-            char *s2 = grrrs_new("ana are merd");
+            char *s1 = grrrs_from_string("ana are mere");
+            char *s2 = grrrs_from_string("ana are merd");
 
             defer(
                 _grrrs_free(s1),
@@ -175,7 +175,7 @@ describe(basic) {
 
     subdesc(trim_left) {
         it("no matches to trim") {
-            char *t = grrrs_new("ana");
+            char *t = grrrs_from_string("ana");
             defer(_grrrs_free(t));
 
             assert_grrrs(t);
@@ -188,7 +188,7 @@ describe(basic) {
             asserteq_int(grrrs_cap(t), 3);
         }
         it("custom character 'a'") {
-            char *t = grrrs_new("aana");
+            char *t = grrrs_from_string("aana");
             defer(_grrrs_free(t));
 
             assert_grrrs(t);
@@ -201,7 +201,7 @@ describe(basic) {
             asserteq_int(grrrs_cap(t), 4);
         }
         it("trim to empty 'a'") {
-            char *t = grrrs_new("aaaaaaaa");
+            char *t = grrrs_from_string("aaaaaaaa");
             defer(_grrrs_free(t));
 
             assert_grrrs(t);
@@ -214,7 +214,7 @@ describe(basic) {
             asserteq_int(grrrs_cap(t), 8);
         }
         it("trim to empty 'ab'") {
-            char *t = grrrs_new("abaabbba");
+            char *t = grrrs_from_string("abaabbba");
             defer(_grrrs_free(t));
 
             assert_grrrs(t);
@@ -227,7 +227,7 @@ describe(basic) {
             asserteq_int(grrrs_cap(t), 8);
         }
         it("trim to empty default whitespace characters") {
-            char *t = grrrs_new(" \t  \r  \n");
+            char *t = grrrs_from_string(" \t  \r  \n");
             defer(_grrrs_free(t));
 
             assert_grrrs(t);
@@ -240,7 +240,7 @@ describe(basic) {
             asserteq_int(grrrs_cap(t), 8);
         }
         it("trim default whitespace characters") {
-            char *t = grrrs_new("       ana are mere\n");
+            char *t = grrrs_from_string("       ana are mere\n");
             defer(_grrrs_free(t));
 
             assert_grrrs(t);
@@ -255,7 +255,7 @@ describe(basic) {
     }
     subdesc(trim_right) {
         it("no matches to trim") {
-            char *t = grrrs_new("ana");
+            char *t = grrrs_from_string("ana");
             defer(_grrrs_free(t));
 
             assert_grrrs(t);
@@ -268,7 +268,7 @@ describe(basic) {
             asserteq_int(grrrs_cap(t), 3);
         }
         it("custom character 'a'") {
-            char *t = grrrs_new("aana");
+            char *t = grrrs_from_string("aana");
             defer(_grrrs_free(t));
 
             assert_grrrs(t);
@@ -281,7 +281,7 @@ describe(basic) {
             asserteq_int(grrrs_cap(t), 4);
         }
         it("trim to empty 'a'") {
-            char *t = grrrs_new("aaaaaaaa");
+            char *t = grrrs_from_string("aaaaaaaa");
             defer(_grrrs_free(t));
 
             assert_grrrs(t);
@@ -294,7 +294,7 @@ describe(basic) {
             asserteq_int(grrrs_cap(t), 8);
         }
         it("trim to empty 'ab'") {
-            char *t = grrrs_new("abaabbba");
+            char *t = grrrs_from_string("abaabbba");
             defer(_grrrs_free(t));
 
             assert_grrrs(t);
@@ -307,7 +307,7 @@ describe(basic) {
             asserteq_int(grrrs_cap(t), 8);
         }
         it("trim to empty default whitespace characters") {
-            char *t = grrrs_new(" \t  \r  \n");
+            char *t = grrrs_from_string(" \t  \r  \n");
             defer(_grrrs_free(t));
 
             assert_grrrs(t);
@@ -320,7 +320,7 @@ describe(basic) {
             asserteq_int(grrrs_cap(t), 8);
         }
         it("trim default whitespace characters") {
-            char *t = grrrs_new("       ana are mere\n");
+            char *t = grrrs_from_string("       ana are mere\n");
             defer(_grrrs_free(t));
 
             assert_grrrs(t);
@@ -335,7 +335,7 @@ describe(basic) {
     }
     subdesc(trim_both) {
         it("no matches to trim") {
-            char *t = grrrs_new("ana");
+            char *t = grrrs_from_string("ana");
             defer(_grrrs_free(t));
 
             assert_grrrs(t);
@@ -348,7 +348,7 @@ describe(basic) {
             asserteq_int(grrrs_cap(t), 3);
         }
         it("custom character 'a'") {
-            char *t = grrrs_new("aana");
+            char *t = grrrs_from_string("aana");
             defer(_grrrs_free(t));
 
             assert_grrrs(t);
@@ -361,7 +361,7 @@ describe(basic) {
             asserteq_int(grrrs_cap(t), 4);
         }
         it("trim to empty 'a'") {
-            char *t = grrrs_new("aaaaaaaa");
+            char *t = grrrs_from_string("aaaaaaaa");
             defer(_grrrs_free(t));
 
             assert_grrrs(t);
@@ -374,7 +374,7 @@ describe(basic) {
             asserteq_int(grrrs_cap(t), 8);
         }
         it("trim to empty 'ab'") {
-            char *t = grrrs_new("abaabbba");
+            char *t = grrrs_from_string("abaabbba");
             defer(_grrrs_free(t));
 
             assert_grrrs(t);
@@ -387,7 +387,7 @@ describe(basic) {
             asserteq_int(grrrs_cap(t), 8);
         }
         it("trim to empty default whitespace characters") {
-            char *t = grrrs_new(" \t  \r  \n");
+            char *t = grrrs_from_string(" \t  \r  \n");
             defer(_grrrs_free(t));
 
             assert_grrrs(t);
@@ -400,7 +400,7 @@ describe(basic) {
             asserteq_int(grrrs_cap(t), 8);
         }
         it("trim default whitespace characters") {
-            char *t = grrrs_new("       ana are mere\n");
+            char *t = grrrs_from_string("       ana are mere\n");
             defer(_grrrs_free(t));
 
             assert_grrrs(t);

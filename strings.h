@@ -10,19 +10,19 @@
 
 #include <inttypes.h>
 
-#ifndef grrrs_malloc
+#ifndef grrrs_std_alloc
 #include <stdlib.h>
-#define grrrs_malloc malloc
+#define grrrs_std_alloc malloc
 #endif
 
-#ifndef grrrs_realloc
+#ifndef grrrs_std_realloc
 #include <stdlib.h>
-#define grrrs_realloc realloc
+#define grrrs_std_realloc realloc
 #endif
 
-#ifndef grrrs_free
+#ifndef grrrs_std_free
 #include <stdlib.h>
-#define grrrs_free free
+#define grrrs_std_free free
 #endif
 
 #ifndef GRRRS_OOM
@@ -40,9 +40,11 @@
 
 #define _grrr_sizeof(C) (sizeof(struct grrr_string) + ((C+1) * sizeof(char)))
 
-#define grrrs_new(A) (_VOID(A) ? \
-    (char *)&_grrrs_new_empty()->data : \
+#define grrrs_from_string(A) (_VOID(A) ? \
+    (char *)&_grrrs_new_empty(0)->data : \
     (char *)&_grrrs_new_from_cstring(A)->data)
+
+#define grrrs_new(A) (char *)&_grrrs_new_empty(A)->data
 
 // TODO(marius): investigate how this aligns
 struct grrr_string {
@@ -58,6 +60,8 @@ internal struct grrr_string *_grrrs_ptr(char *s)
     return (struct grrr_string*)(s + _GRRRS_NULL_TOP_PTR);
 }
 
+#define grrrs_free(A) _grrrs_free(A)
+
 void _grrrs_free(char *s)
 {
     if (_VOID(s)) { return; }
@@ -70,22 +74,24 @@ void _grrrs_free(char *s)
     }
 
     if (_VOID(gs->data)) {
-        grrrs_free(gs->data);
+        grrrs_std_free(gs->data);
     }
-    grrrs_free(gs);
+    grrrs_std_free(gs);
 }
 
-internal struct grrr_string *_grrrs_new_empty()
+internal struct grrr_string *_grrrs_new_empty(size_t cap)
 {
-    struct grrr_string *result = grrrs_malloc(_grrr_sizeof(0));
+    struct grrr_string *result = grrrs_std_alloc(_grrr_sizeof(cap));
     if (_VOID(result)) {
         GRRRS_OOM;
         return (void*)_GRRRS_NULL_TOP_PTR;
     }
 
     result->len = 0;
-    result->cap = 0;
-    result->data[0] = '\0';
+    result->cap = cap;
+    for (size_t i = 0; i <= cap; i++) {
+        result->data[i] = '\0';
+    }
 
     return result;
 }
@@ -104,7 +110,7 @@ internal uint32_t __strlen(const char *s)
 internal struct grrr_string *_grrrs_new_from_cstring(const char* s)
 {
     int len = __strlen(s);
-    struct grrr_string *result = grrrs_malloc(_grrr_sizeof(len));
+    struct grrr_string *result = grrrs_std_alloc(_grrr_sizeof(len));
     if (_VOID(result)) {
         GRRRS_OOM;
         return (void*)_GRRRS_NULL_TOP_PTR;
@@ -203,7 +209,7 @@ internal struct grrr_string *__grrrs_resize(struct grrr_string *gs, uint32_t new
     }
     // TODO(marius): cover the case where new_cap is smaller than gs->len
     // and maybe when it's smaller than gs->cap
-    gs = grrrs_realloc(gs, _grrr_sizeof(new_cap));
+    gs = grrrs_std_realloc(gs, _grrr_sizeof(new_cap));
     if (_VOID(gs)) {
         GRRRS_OOM ;
         return (void*)_GRRRS_NULL_TOP_PTR;
@@ -241,9 +247,9 @@ void *_grrrs_trim_left(char *s, const char *c)
     if (_VOID(gs)) { return result; }
 
     if (_VOID(c)) {
-        to_trim = grrrs_new(" \t\r\n");
+        to_trim = _grrrs_new_from_cstring(" \t\r\n")->data;
     } else {
-        to_trim = grrrs_new(c);
+        to_trim = _grrrs_new_from_cstring(c)->data;
     }
     uint32_t len_to_trim = grrrs_len(to_trim);
 
@@ -270,7 +276,7 @@ void *_grrrs_trim_left(char *s, const char *c)
     if (new_len == gs->len) {
         goto _to_trim_free;
     }
-    char *temp = grrrs_malloc((new_len+1)*sizeof(char));
+    char *temp = grrrs_std_alloc((new_len+1)*sizeof(char));
     for (uint32_t k = 0; k < new_len; k++) {
         temp[k] = gs->data[trim_end + k];
     }
@@ -281,7 +287,7 @@ void *_grrrs_trim_left(char *s, const char *c)
         gs->data[k] = '\0';
     }
     gs->len = (uint32_t)new_len;
-    grrrs_free(temp);
+    grrrs_std_free(temp);
 
 _to_trim_free:
     _grrrs_free(to_trim);
@@ -299,9 +305,9 @@ void *_grrrs_trim_right(char *s, const char *c)
     if (_VOID(gs)) { return result; }
 
     if (_VOID(c)) {
-        to_trim = grrrs_new("\r \t\n");
+        to_trim = _grrrs_new_from_cstring("\r \t\n")->data;
     } else {
-        to_trim = grrrs_new(c);
+        to_trim = _grrrs_new_from_cstring(c)->data;
     }
     uint32_t len_to_trim = grrrs_len(to_trim);
 
